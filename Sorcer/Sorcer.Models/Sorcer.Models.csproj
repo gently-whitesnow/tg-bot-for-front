@@ -10,4 +10,10 @@
       <Folder Include="obj\Debug\net7.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="atisu.services.common" Version="12.1.2" />
+      <PackageReference Include="System.Text.Json" Version="7.0.3" />
+      <PackageReference Include="Telegram.Bot" Version="19.0.0" />
+    </ItemGroup>
+
 </Project>

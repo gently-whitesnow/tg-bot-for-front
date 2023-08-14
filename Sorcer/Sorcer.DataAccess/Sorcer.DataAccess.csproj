@@ -10,4 +10,8 @@
       <Folder Include="obj\Debug\net7.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Sorcer.Models\Sorcer.Models.csproj" />
+    </ItemGroup>
+    
 </Project>
