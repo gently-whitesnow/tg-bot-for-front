@@ -6,7 +6,7 @@ services:
     image: sorcer
     restart: always
     volumes:       
-      - share:/share
+      - ./share:/share
     environment:
       - TOKEN=${TOKEN}
       - PASSWORD=${PASSWORD}
@@ -24,7 +24,7 @@ services:
       - /etc/letsencrypt/live/nginx-proxy-server.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
       - /etc/letsencrypt/live/nginx-proxy-server.ru/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
       - nginx_cache:/var/cache/nginx
-      - share:/var/www/share
+      - ./share:/usr/share/nginx/html
     ports: 
       - "80:80"
       - "443:443"
@@ -36,7 +36,6 @@ services:
 
 volumes:
   nginx_cache:
-  share:
 
 networks: 
   nginx_network:
