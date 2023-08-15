@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+  nginx-proxy:
+    container_name: nginx 
+    image: nginx:1.21     
+    volumes:       
+    # todo remove logs
+      - /var/log/nginx:/var/log/nginx       
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/live/nginx-proxy-server.ru/chain.pem:/etc/nginx/ssl/chain.pem:ro
+      - /etc/letsencrypt/live/nginx-proxy-server.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
+      - /etc/letsencrypt/live/nginx-proxy-server.ru/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
+      - nginx_cache:/var/cache/nginx
+    ports: 
+      - "80:80"
+      - "443:443"
+    restart: always
+
+volumes:
+  nginx_cache:
