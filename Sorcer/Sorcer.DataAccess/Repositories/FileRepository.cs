@@ -13,6 +13,7 @@ public abstract class FileRepository<TEntity> where TEntity : class, new()
     protected FileRepository(string filePath)
     {
         _filePath = filePath;
+        new FileInfo(_filePath).Directory?.Create();
     }
 
     protected Task<OperationResult<TEntity>> ReadAllAsync()
