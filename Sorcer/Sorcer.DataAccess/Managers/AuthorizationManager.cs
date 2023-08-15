@@ -18,7 +18,7 @@ public class AuthorizationManager
 
     public AuthorizationManager(AuthorizationRepository authorizationRepository, IOptions<TelegramBotOptions> options)
     {
-        _password = options.Value.Password;
+        _password = options.Value.PASSWORD;
         _authorizationRepository = authorizationRepository;
     }
 

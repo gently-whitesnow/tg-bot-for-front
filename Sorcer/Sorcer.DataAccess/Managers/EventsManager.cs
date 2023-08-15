@@ -63,7 +63,7 @@ public class EventsManager
             return;
         }
 
-        foreach (var eventDto in eventsOperation.Value)
+        foreach (var eventDto in eventsOperation.Value.OrderBy(e => e.EventDateTime).ToArray())
         {
             var fileOperation = await _fileSystemHelper.GetEventFileAsync(eventDto.ImagePath);
             if (!fileOperation.Success)
@@ -141,8 +141,7 @@ public class EventsManager
         var photo = context.Message.Photo[^1];
 
         var file = await context.BotClient.GetFileAsync(photo.FileId);
-        var eventId = Guid.NewGuid();
-        var saveOperation = await _fileSystemHelper.SaveEventFileAsync(eventId, context.BotClient, file.FilePath);
+        var saveOperation = await _fileSystemHelper.SaveEventFileAsync(context.BotClient, file.FilePath);
         if (!saveOperation.Success)
         {
             context.BotClient.LogErrorAsync(chatId, saveOperation).Forget();
@@ -152,7 +151,7 @@ public class EventsManager
         _userStateRepository.SetTempUserData(context.UserDto.Id, tempUserData =>
         {
             tempUserData.State = UserState.GettingEventDateTime;
-            tempUserData.EventDto.Id = eventId;
+            tempUserData.EventDto.Id = Guid.NewGuid();
             tempUserData.EventDto.ImagePath = saveOperation.Value;
         } );
         

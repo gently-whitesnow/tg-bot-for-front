@@ -11,12 +11,13 @@ public class TelegramBotInitializer : IInitializer
     public TelegramBotInitializer(IOptions<TelegramBotOptions> options,
         UpdateHandler updateHandler)
     {
-        _bot = new TelegramBot(options.Value.Token, updateHandler);
+        _bot = new TelegramBot(options.Value.TOKEN, updateHandler);
     }
     
     public Task InitializeAsync()
     {
-        return _bot.Execute();
+        _bot.Execute();
+        return Task.CompletedTask;
     }
 
     public string InitStartConsoleMessage()

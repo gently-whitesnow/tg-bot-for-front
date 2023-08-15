@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -58,13 +59,19 @@ public static class Startup
             .Build();
 
         ConfigurationManager.ConfigurationRoot = builder.Configuration;
-
+        var botSettings = new TelegramBotOptions();
+        builder.Configuration.GetSection(nameof(TelegramBotOptions)).Bind(botSettings);
+        botSettings.TOKEN = Environment.GetEnvironmentVariable(nameof(botSettings.TOKEN));
+        botSettings.PASSWORD = Environment.GetEnvironmentVariable(nameof(botSettings.PASSWORD));
+        if (string.IsNullOrEmpty(botSettings.TOKEN) || string.IsNullOrEmpty(botSettings.PASSWORD))
+            throw new KeyNotFoundException("TOKEN or PASSWORD is empty");
+        builder.Services.AddSingleton(botSettings);
         return builder;
     }
 
     public static IServiceCollection WithOptions(this IServiceCollection services)
     {
-        services.ConfigureByName<TelegramBotOptions>();
+        
         services.ConfigureByName<FileSystemOptions>();
         return services;
     }

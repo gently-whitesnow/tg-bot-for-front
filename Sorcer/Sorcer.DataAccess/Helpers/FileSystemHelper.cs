@@ -15,9 +15,9 @@ public class FileSystemHelper
         _fileSystemOptions = fileSystemOptions.Value;
     }
 
-    public Task<OperationResult<string>> SaveEventFileAsync(Guid eventId,ITelegramBotClient botClient, string filePath)
+    public Task<OperationResult<string>> SaveEventFileAsync(ITelegramBotClient botClient, string filePath)
     {
-        return SaveFileAsync($"{eventId}", botClient, filePath);
+        return SaveFileAsync(botClient, filePath);
     }
 
     public Task<OperationResult<byte[]>> GetEventFileAsync(string eventPath)
@@ -77,11 +77,11 @@ public class FileSystemHelper
             return new(ex);
         }
     }
-    private async Task<OperationResult<string>> SaveFileAsync(string path, ITelegramBotClient botClient, string telegramFilePath)
+    private async Task<OperationResult<string>> SaveFileAsync(ITelegramBotClient botClient, string telegramFilePath)
     {
         try
         {
-            var filePath = Path.Combine(_fileSystemOptions.EventsRootImageFilePath, path, telegramFilePath);
+            var filePath = Path.Combine(_fileSystemOptions.EventsRootImageFilePath, telegramFilePath);
             new FileInfo(filePath).Directory?.Create();
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
