@@ -8,10 +8,10 @@ public class TelegramBotInitializer : IInitializer
 {
     private readonly TelegramBot _bot;
 
-    public TelegramBotInitializer(IOptions<TelegramBotOptions> options,
+    public TelegramBotInitializer(TelegramBotOptions options,
         UpdateHandler updateHandler)
     {
-        _bot = new TelegramBot(options.Value.TOKEN, updateHandler);
+        _bot = new TelegramBot(options.TOKEN, updateHandler);
     }
     
     public Task InitializeAsync()
