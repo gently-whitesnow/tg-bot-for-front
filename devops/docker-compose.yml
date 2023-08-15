@@ -1,6 +1,18 @@
 version: "3.7"
 
 services:
+  sorcer:
+    container_name: sorcer
+    image: sorcer
+    restart: always
+    volumes:       
+      - share:/share
+    environment:
+      - TOKEN=${TOKEN}
+      - PASSWORD=${PASSWORD}
+    networks: 
+      - nginx_network
+
   nginx-proxy:
     container_name: nginx 
     image: nginx:1.21     
@@ -17,16 +29,8 @@ services:
       - "80:80"
       - "443:443"
     restart: always
-
-  sorcer:
-    container_name: sorcer
-    image: sorcer
-    restart: always
-    volumes:       
-      - share:/share
-    environment:
-      - TOKEN=${TOKEN}
-      - PASSWORD=${PASSWORD}
+    depends_on: 
+      - sorcer
     networks: 
       - nginx_network
 
