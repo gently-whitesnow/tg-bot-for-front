@@ -12,10 +12,27 @@ services:
       - /etc/letsencrypt/live/nginx-proxy-server.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
       - /etc/letsencrypt/live/nginx-proxy-server.ru/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
       - nginx_cache:/var/cache/nginx
+      - share:/var/www/share
     ports: 
       - "80:80"
       - "443:443"
     restart: always
 
+    backend-api:
+    container_name: sorcer
+    image: sorcer
+    restart: always
+    volumes:       
+      - share:/share
+    environment:
+    - "TOKEN:${TOKEN}"
+    - "PASSWORD:${PASSWORD}"
+    networks: 
+      - nginx_network
+
 volumes:
   nginx_cache:
+  share:
+
+networks: 
+  nginx_network:
