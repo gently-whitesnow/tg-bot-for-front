@@ -24,7 +24,7 @@ services:
       - /etc/letsencrypt/live/nginx-proxy-server.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
       - /etc/letsencrypt/live/nginx-proxy-server.ru/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
       - nginx_cache:/var/cache/nginx
-      - ~/share:/usr/share/nginx/html
+      - ~/share:/usr/share/nginx/html:ro
     ports: 
       - "80:80"
       - "443:443"
