@@ -16,9 +16,9 @@ public class AuthorizationManager
     private readonly AuthorizationRepository _authorizationRepository;
     private readonly string _password;
 
-    public AuthorizationManager(AuthorizationRepository authorizationRepository, IOptions<TelegramBotOptions> options)
+    public AuthorizationManager(AuthorizationRepository authorizationRepository, TelegramBotOptions options)
     {
-        _password = options.Value.PASSWORD;
+        _password = options.PASSWORD;
         _authorizationRepository = authorizationRepository;
     }
 
