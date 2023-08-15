@@ -6,7 +6,7 @@ RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.
 
 RUN dotnet restore
 COPY ./ ./
-RUN dotnet publish ./Sorcer/ -o /publish -c Release --no-restore
+RUN dotnet publish ./Sorcer.Api/ -o /publish -c Release --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
@@ -16,4 +16,4 @@ COPY --from=build-env /publish .
 RUN apt update && apt-get install -y --no-install-recommends apt-utils && apt install tzdata -y
 ENV TZ="Europe/Moscow"
 
-ENTRYPOINT ["dotnet","Sorcer.dll"]
+ENTRYPOINT ["dotnet","Sorcer.Api.dll"]
