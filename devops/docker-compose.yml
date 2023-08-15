@@ -18,15 +18,15 @@ services:
       - "443:443"
     restart: always
 
-    backend-api:
+  sorcer:
     container_name: sorcer
     image: sorcer
     restart: always
     volumes:       
       - share:/share
     environment:
-    - "TOKEN:${TOKEN}"
-    - "PASSWORD:${PASSWORD}"
+      - TOKEN=${TOKEN}
+      - PASSWORD=${PASSWORD}
     networks: 
       - nginx_network
 
