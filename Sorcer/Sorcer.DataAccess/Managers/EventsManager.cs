@@ -53,14 +53,18 @@ public class EventsManager
                 StringifyEventDateTime = e.StringifyEventDateTime
             }).ToList();
 
+        bool isFound = false;
         foreach (var publicEnvent in events)
         {
             if(publicEnvent.DateTimeOffset <= DateTimeOffset.Now)
                 continue;
 
             publicEnvent.IsNextEvent = true;
+            isFound = true;
             break;
         }
+
+        if (!isFound) events[^1].IsNextEvent = true;
   
         return new(events);
     }
