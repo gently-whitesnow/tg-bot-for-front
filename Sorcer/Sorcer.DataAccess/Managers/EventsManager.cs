@@ -192,7 +192,7 @@ public class EventsManager
         } );
         
         _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-            "<b>Пришлите участников события</b>").Forget();
+            "<b>Пришлите описание события</b>").Forget();
     }
     
     public async Task  SaveEventDescriptionAsync(MessageContext context)
@@ -202,7 +202,7 @@ public class EventsManager
             || string.IsNullOrEmpty(context.Message.Text))
         {
             _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-                "<b>Пришлите участников события</b>").Forget();
+                "<b>Пришлите описание события</b>").Forget();
             return;
         }
         
