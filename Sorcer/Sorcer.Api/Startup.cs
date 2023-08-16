@@ -78,7 +78,12 @@ public static class Startup
     public static IServiceCollection WithServices(this IServiceCollection services)
     {
         services.AddHealthChecks();
-
+        services.AddCors(options =>
+            options.AddPolicy(CommonBehavior.AllowAllOriginsCorsPolicyName,
+                builder =>
+                    builder.WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()));
         services
             .AddControllers(options =>
             {

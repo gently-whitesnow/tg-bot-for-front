@@ -43,14 +43,26 @@ public class EventsManager
         if (!eventsOperation.Success)
             return new(eventsOperation);
 
-        return new(eventsOperation.Value
+        var events = eventsOperation.Value
             .OrderBy(e => e.EventDateTime)
             .Select(e => new EventPublic
             {
+                DateTimeOffset = e.EventDateTime,
                 EventParticipants = e.EventParticipants,
                 ImageUrl = _options.EventsImagePrefixUrl + e.ImagePath,
                 StringifyEventDateTime = e.StringifyEventDateTime
-            }).ToList());
+            }).ToList();
+
+        foreach (var publicEnvent in events)
+        {
+            if(publicEnvent.DateTimeOffset <= DateTimeOffset.Now)
+                continue;
+
+            publicEnvent.IsNextEvent = true;
+            break;
+        }
+  
+        return new(events);
     }
 
     public async Task ShowEventsAsync(CallbackContext context)
