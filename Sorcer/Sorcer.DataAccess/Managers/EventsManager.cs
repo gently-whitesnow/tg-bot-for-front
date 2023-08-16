@@ -128,7 +128,7 @@ public class EventsManager
         }
         if(eventsOperation.Value.Id == eventId)
         {
-            var fileOperation = await _fileSystemHelper.DeleteEventDirectoryAsync(eventsOperation.Value.ImagePath);
+            var fileOperation = await _fileSystemHelper.DeleteEventFileAsync(eventsOperation.Value.ImagePath);
             if (!fileOperation.Success)
             {
                 context.BotClient.LogErrorAsync(chatId, fileOperation).Forget();

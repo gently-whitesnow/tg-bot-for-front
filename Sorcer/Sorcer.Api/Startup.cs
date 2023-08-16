@@ -84,6 +84,7 @@ public static class Startup
                     builder.WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .AllowAnyOrigin()
                         .AllowAnyHeader()));
+        
         services
             .AddControllers(options =>
             {

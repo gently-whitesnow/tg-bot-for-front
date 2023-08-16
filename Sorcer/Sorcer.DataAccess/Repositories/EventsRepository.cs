@@ -36,7 +36,7 @@ public class EventsRepository : FileRepository<List<EventDto>>
             deletableEvent = @event;
             events.Remove(@event);
         });
-        if (writeOperation.Success)
+        if (!writeOperation.Success)
             return new OperationResult<EventDto>(writeOperation);
         
         return new(deletableEvent ?? new EventDto());

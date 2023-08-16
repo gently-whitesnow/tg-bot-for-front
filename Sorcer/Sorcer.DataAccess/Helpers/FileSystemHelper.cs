@@ -24,7 +24,7 @@ public class FileSystemHelper
         return GetFileAsync(eventPath);
     }
     
-    public Task<OperationResult> DeleteEventDirectoryAsync(string eventPath)
+    public Task<OperationResult> DeleteEventFileAsync(string eventPath)
     {
         return DeleteFileAsync(eventPath);
     }
@@ -62,7 +62,7 @@ public class FileSystemHelper
         {
             return new(await Task.Run(() =>
             {
-                if(!File.Exists(path))
+                if(File.Exists(path))
                     File.Delete(path);
 
                 return ActionStatus.Ok;

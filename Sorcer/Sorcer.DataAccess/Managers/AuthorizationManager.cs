@@ -39,7 +39,7 @@ public class AuthorizationManager
 
         if (message == null || string.IsNullOrEmpty(message.Text) || !message.Text.Trim().Equals(_password, StringComparison.InvariantCultureIgnoreCase))
         {
-            bot.SendTextMessageAsync(chatId, $"Для доступа необходим пароль");
+            bot.SendTextMessageAsync(chatId, $"Для доступа необходим пароль").Forget();
             return new(ActionStatus.Forbidden);
         }
 
