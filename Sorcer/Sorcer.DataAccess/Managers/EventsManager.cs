@@ -114,12 +114,14 @@ public class EventsManager
             context.BotClient.LogErrorAsync(chatId, eventsOperation);
             return;
         }
-        
-        var fileOperation = await _fileSystemHelper.DeleteEventDirectoryAsync(eventId);
-        if (!fileOperation.Success)
+        if(eventsOperation.Value.Id == eventId)
         {
-            context.BotClient.LogErrorAsync(chatId, fileOperation).Forget();
-            return;
+            var fileOperation = await _fileSystemHelper.DeleteEventDirectoryAsync(eventsOperation.Value.ImagePath);
+            if (!fileOperation.Success)
+            {
+                context.BotClient.LogErrorAsync(chatId, fileOperation).Forget();
+                return;
+            }
         }
 
         await context.BotClient.SendTextMessageAsync(chatId,

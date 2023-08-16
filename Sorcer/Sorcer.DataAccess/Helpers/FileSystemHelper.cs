@@ -1,5 +1,4 @@
 using ATI.Services.Common.Behaviors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Sorcer.Models.Options;
 using Telegram.Bot;
@@ -25,9 +24,9 @@ public class FileSystemHelper
         return GetFileAsync(eventPath);
     }
     
-    public Task<OperationResult> DeleteEventDirectoryAsync(Guid eventId)
+    public Task<OperationResult> DeleteEventDirectoryAsync(string eventPath)
     {
-        return DeleteDirectoryAsync($"{eventId}");
+        return DeleteFileAsync(eventPath);
     }
 
     private async Task<OperationResult<byte[]>> GetFileAsync(string path)
@@ -57,17 +56,14 @@ public class FileSystemHelper
     }
 
 
-    private async Task<OperationResult> DeleteDirectoryAsync(string path)
+    private async Task<OperationResult> DeleteFileAsync(string path)
     {
         try
         {
             return new(await Task.Run(() =>
             {
-                var directory = new DirectoryInfo($"{_fileSystemOptions.EventsRootImageFilePath}/{path}");
-                if (!directory.Exists)
-                    return ActionStatus.Ok;
-
-                directory.Delete(true);
+                if(!File.Exists(path))
+                    File.Delete(path);
 
                 return ActionStatus.Ok;
             }));

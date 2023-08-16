@@ -25,15 +25,20 @@ public class EventsRepository : FileRepository<List<EventDto>>
         });
     }
     
-    public Task<OperationResult<List<EventDto>>> RemoveEventAsync(Guid eventId)
+    public async Task<OperationResult<EventDto>> RemoveEventAsync(Guid eventId)
     {
-        return WriteAllAsync(events =>
+        EventDto deletableEvent = null;
+        var writeOperation = await WriteAllAsync(events =>
         {
             var @event = events.FirstOrDefault(e => e.Id == eventId);
             if(@event == null)
                 return;
-            
+            deletableEvent = @event;
             events.Remove(@event);
         });
+        if (writeOperation.Success)
+            return new OperationResult<EventDto>(writeOperation);
+        
+        return new(deletableEvent ?? new EventDto());
     }
 }
