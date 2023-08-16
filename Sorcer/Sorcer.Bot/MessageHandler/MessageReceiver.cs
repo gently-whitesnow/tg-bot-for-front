@@ -45,9 +45,9 @@ public class MessageReceiver
                 _eventsManager.SaveEventDateTimeAsync(context);
                 break;
             }
-            case UserState.GettingEventParticipants:
+            case UserState.GettingDescription:
             {
-                _eventsManager.SaveEventParticipantsAsync(context);
+                _eventsManager.SaveEventDescriptionAsync(context);
                 break;
             }
         }

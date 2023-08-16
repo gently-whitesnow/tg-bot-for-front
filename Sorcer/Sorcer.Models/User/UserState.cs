@@ -5,6 +5,6 @@ public enum UserState
     None,
     GettingEventImage,
     GettingEventDateTime,
-    GettingEventParticipants,
+    GettingDescription,
     GettingSaveApproval,
 }

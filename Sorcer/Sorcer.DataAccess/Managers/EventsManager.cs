@@ -48,7 +48,7 @@ public class EventsManager
             .Select(e => new EventPublic
             {
                 DateTimeOffset = e.EventDateTime,
-                EventParticipants = e.EventParticipants,
+                EventDescription = e.EventDescription,
                 ImageUrl = _options.EventsImagePrefixUrl + e.ImagePath,
                 StringifyEventDateTime = e.StringifyEventDateTime
             }).ToList();
@@ -84,7 +84,7 @@ public class EventsManager
                 return;
             }
 
-            var caption = $"{eventDto.StringifyEventDateTime}\n{eventDto.EventParticipants}";
+            var caption = $"{eventDto.StringifyEventDateTime}\n{eventDto.EventDescription}";
             var image = GetInputFile(fileOperation.Value);
             await _inlineSender.SendEventImageWithInlineAsync(
                     context.BotClient, chatId, caption, image, eventDto.Id);
@@ -186,7 +186,7 @@ public class EventsManager
         
         _userStateRepository.SetTempUserData(context.UserDto.Id, tempUserData =>
         {
-            tempUserData.State = UserState.GettingEventParticipants;
+            tempUserData.State = UserState.GettingDescription;
             tempUserData.EventDto.EventDateTime = dateTimeOffset;
             tempUserData.EventDto.StringifyEventDateTime = $"{dateTimeOffset.Day} {MonthDictionary.Months[dateTimeOffset.Month]} {dateTimeOffset.Year}";
         } );
@@ -195,7 +195,7 @@ public class EventsManager
             "<b>Пришлите участников события</b>").Forget();
     }
     
-    public async Task  SaveEventParticipantsAsync(MessageContext context)
+    public async Task  SaveEventDescriptionAsync(MessageContext context)
     {
         var chatId = context.Message.Chat.Id;
         if (context.Message.Type != MessageType.Text 
@@ -209,7 +209,7 @@ public class EventsManager
         _userStateRepository.SetTempUserData(context.UserDto.Id, tempUserData =>
         {
             tempUserData.State = UserState.GettingSaveApproval;
-            tempUserData.EventDto.EventParticipants = context.Message.Text;
+            tempUserData.EventDto.EventDescription = context.Message.Text;
         } );
         
         var userData = _userStateRepository.GetTempUserData(context.UserDto.Id);
@@ -224,7 +224,7 @@ public class EventsManager
         _inlineSender.SendSaveCancelInlineAsync(context.BotClient, chatId,
             "<b>Подтвердите сохранение события:</b>\n" +
             $"{userData.EventDto.StringifyEventDateTime}\n" +
-            $"{userData.EventDto.EventParticipants}",
+            $"{userData.EventDto.EventDescription}",
             image).Forget();
     }
     
@@ -232,7 +232,7 @@ public class EventsManager
     {
         var chatId = context.Callback.From.Id;
         var userData = _userStateRepository.GetTempUserData(context.UserDto.Id);
-        if (string.IsNullOrEmpty(userData.EventDto.EventParticipants)
+        if (string.IsNullOrEmpty(userData.EventDto.EventDescription)
             || string.IsNullOrEmpty(userData.EventDto.StringifyEventDateTime)
             || string.IsNullOrEmpty(userData.EventDto.ImagePath))
         {
