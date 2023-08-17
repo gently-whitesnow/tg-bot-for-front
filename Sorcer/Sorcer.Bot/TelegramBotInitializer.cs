@@ -7,6 +7,7 @@ namespace Sorcer.Bot;
 public class TelegramBotInitializer : IInitializer
 {
     private readonly TelegramBot _bot;
+    private bool isInitialized;
 
     public TelegramBotInitializer(TelegramBotOptions options,
         UpdateHandler updateHandler)
@@ -16,7 +17,10 @@ public class TelegramBotInitializer : IInitializer
     
     public Task InitializeAsync()
     {
+        if (isInitialized) return Task.CompletedTask;
+        
         _bot.Execute();
+        isInitialized = true;
         return Task.CompletedTask;
     }
 

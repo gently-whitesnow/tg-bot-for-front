@@ -1,7 +1,5 @@
 using ATI.Services.Common.Behaviors;
 using ATI.Services.Common.Extensions;
-using Microsoft.Extensions.Options;
-using Sorcer.DataAccess;
 using Sorcer.DataAccess.Helpers;
 using Sorcer.DataAccess.Repositories;
 using Sorcer.Models.Options;
@@ -9,12 +7,14 @@ using Sorcer.Models.User;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Sorcer.Bot;
+namespace Sorcer.DataAccess.Managers;
 
 public class AuthorizationManager
 {
     private readonly AuthorizationRepository _authorizationRepository;
     private readonly string _password;
+    private const string PasswordRequiredMessage = "Для доступа необходим пароль";
+    private const string AccessProvidedMessage = "Доступ предоставлен";
 
     public AuthorizationManager(AuthorizationRepository authorizationRepository, TelegramBotOptions options)
     {
@@ -39,7 +39,7 @@ public class AuthorizationManager
 
         if (message == null || string.IsNullOrEmpty(message.Text) || !message.Text.Trim().Equals(_password, StringComparison.InvariantCultureIgnoreCase))
         {
-            bot.SendTextMessageAsync(chatId, $"Для доступа необходим пароль").Forget();
+            bot.SendTextMessageAsync(chatId, PasswordRequiredMessage).Forget();
             return new(ActionStatus.Forbidden);
         }
 
@@ -57,7 +57,7 @@ public class AuthorizationManager
             return new(addOperation);
         }
 
-        bot.SendTextMessageAsync(chatId, $"Доступ предоставлен");
+        bot.SendTextMessageAsync(chatId, AccessProvidedMessage).Forget();
         return new(telegramUser);
     }
 }

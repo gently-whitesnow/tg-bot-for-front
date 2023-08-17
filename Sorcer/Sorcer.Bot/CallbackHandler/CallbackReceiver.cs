@@ -35,7 +35,7 @@ public class CallbackReceiver
             }
             case Buttons.Add:
             {
-                _eventsManager.AddEventAsync(context);
+                _eventsManager.AddEvent(context);
                 break;
             }
             case Buttons.Delete:
@@ -45,12 +45,12 @@ public class CallbackReceiver
             }
             case Buttons.Cancel:
             {
-                _eventsManager.CancelAddingEventAsync(context);
+                _eventsManager.CancelAddingEvent(context);
                 break;
             }
             case Buttons.Save:
             {
-                _eventsManager.SaveEventAsync(context);
+                _eventsManager.SaveEventAsync(context).Forget();
                 break;
             }
         }
@@ -61,7 +61,7 @@ public class CallbackReceiver
         try
         {
             if(string.IsNullOrEmpty(rawCallbackData))
-                throw new JsonException($"Callback data empty");
+                throw new JsonException($"Callback data is empty");
             
             var data = JsonSerializer.Deserialize<CallbackData>(rawCallbackData);
             if (data == null)

@@ -42,10 +42,7 @@ public static class Startup
         }).UseDefaultServiceProvider((context, options) =>
         {
             var environmentName = context.HostingEnvironment.EnvironmentName;
-            //Scoped services aren't directly or indirectly resolved from the root service provider.
-            //Scoped services aren't directly or indirectly injected into singletons.
             options.ValidateScopes = context.HostingEnvironment.IsDevelopment() || environmentName == "dev";
-            //Validate DI tree on startup    
             options.ValidateOnBuild = context.HostingEnvironment.IsDevelopment() || environmentName is "dev" or "staging";
         });
 

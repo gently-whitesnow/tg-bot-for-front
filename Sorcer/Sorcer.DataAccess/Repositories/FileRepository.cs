@@ -58,6 +58,7 @@ public abstract class FileRepository<TEntity> where TEntity : class, new()
         }
         catch (Exception ex)
         {
+            File.Delete(_filePath);
             return new(ex);
         }
     }

@@ -9,18 +9,25 @@ namespace Sorcer.DataAccess.Helpers;
 
 public class InlineSender
 {
-    public async Task<Telegram.Bot.Types.Message> SendMenuInlineKeyboard(ITelegramBotClient botClient, long chatId)
+    private const string AllEventsText = "Все события";
+    private const string AddEventText = "Добавить событие";
+    private const string CancelText = "Сбросить";
+    private const string DeleteText = "Удалить";
+    private const string SaveText = "Сохранить";
+    private const string ChoiceActionText = "<b>Выберите действие:</b>";
+    
+    public async Task<Message> SendMenuInlineAsync(ITelegramBotClient botClient, long chatId)
     {
         InlineKeyboardMarkup inlineKeyboard = new(
             new[]
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("Все события", JsonSerializer.Serialize(new CallbackData
+                    InlineKeyboardButton.WithCallbackData(AllEventsText, JsonSerializer.Serialize(new CallbackData
                     {
                         BT = Buttons.Show,
                     })),
-                    InlineKeyboardButton.WithCallbackData("Добавить событие", JsonSerializer.Serialize(new CallbackData
+                    InlineKeyboardButton.WithCallbackData(AddEventText, JsonSerializer.Serialize(new CallbackData
                     {
                         BT = Buttons.Add,
                     })),
@@ -29,11 +36,11 @@ public class InlineSender
 
         return await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "<b>Выберите действие:</b>",
+            text: ChoiceActionText,
             replyMarkup: inlineKeyboard, parseMode: ParseMode.Html);
     }
 
-    public async Task<Message> SendEventImageWithInlineAsync(
+    public async Task<Message> SendEventImageWithDeleteInlineAsync(
         ITelegramBotClient botClient,
         long chatId,
         string caption,
@@ -45,7 +52,7 @@ public class InlineSender
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("Удалить", 
+                    InlineKeyboardButton.WithCallbackData(DeleteText, 
                         JsonSerializer.Serialize(new CallbackData
                     {
                         BT = Buttons.Delete,
@@ -70,7 +77,7 @@ public class InlineSender
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("Сбросить", 
+                    InlineKeyboardButton.WithCallbackData(CancelText, 
                         JsonSerializer.Serialize(new CallbackData
                         {
                             BT = Buttons.Cancel
@@ -94,12 +101,12 @@ public class InlineSender
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("Сбросить", 
+                    InlineKeyboardButton.WithCallbackData(CancelText, 
                         JsonSerializer.Serialize(new CallbackData
                         {
                             BT = Buttons.Cancel
                         })),
-                    InlineKeyboardButton.WithCallbackData("Сохранить", 
+                    InlineKeyboardButton.WithCallbackData(SaveText, 
                         JsonSerializer.Serialize(new CallbackData
                         {
                             BT = Buttons.Save

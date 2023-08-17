@@ -7,7 +7,7 @@ namespace Sorcer.DataAccess.Repositories;
 public class UserStateRepository
 {
     private readonly List<TempUserData> _userStates = new();
-    private readonly RWLock _lock = new RWLock();
+    private readonly RWLock _lock = new();
 
     public TempUserData GetTempUserData(long userId)
     {
@@ -29,6 +29,7 @@ public class UserStateRepository
 
     public void SetTempUserData(long userId, Action<TempUserData> action)
     {
+        // for practice
         using (var _upgradeableLock = _lock.ReadUpgradeableLock())
         {
             var userState = _userStates.FirstOrDefault(u => u.UserId == userId);

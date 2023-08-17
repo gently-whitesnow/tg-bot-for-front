@@ -1,10 +1,9 @@
+using ATI.Services.Common.Extensions;
 using Sorcer.DataAccess.Helpers;
 using Sorcer.DataAccess.Managers;
 using Sorcer.DataAccess.Repositories;
 using Sorcer.Models.MessageHandler;
 using Sorcer.Models.User;
-using Telegram.Bot;
-using Telegram.Bot.Types.Enums;
 
 namespace Sorcer.Bot.MessageHandler;
 
@@ -29,7 +28,7 @@ public class MessageReceiver
         var tempUserData = _userStateRepository.GetTempUserData(context.UserDto.Id);
         if (tempUserData == null || tempUserData.State == UserState.None)
         {
-            _inlineSender.SendMenuInlineKeyboard(context.BotClient, chatId);
+            _inlineSender.SendMenuInlineAsync(context.BotClient, chatId);
             return;
         }
 
@@ -37,17 +36,17 @@ public class MessageReceiver
         {
             case UserState.GettingEventImage:
             {
-                _eventsManager.SaveImageAsync(context);
+                _eventsManager.SaveImageAsync(context).Forget();
                 break;
             }
             case UserState.GettingEventDateTime:
             {
-                _eventsManager.SaveEventDateTimeAsync(context);
+                _eventsManager.SaveEventDateTime(context);
                 break;
             }
             case UserState.GettingDescription:
             {
-                _eventsManager.SaveEventDescriptionAsync(context);
+                _eventsManager.SaveEventDescriptionAsync(context).Forget();
                 break;
             }
         }

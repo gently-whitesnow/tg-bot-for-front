@@ -30,11 +30,12 @@ public class EventsRepository : FileRepository<List<EventDto>>
         EventDto deletableEvent = null;
         var writeOperation = await WriteAllAsync(events =>
         {
-            var @event = events.FirstOrDefault(e => e.Id == eventId);
-            if(@event == null)
+            var eventDto = events.FirstOrDefault(e => e.Id == eventId);
+            if(eventDto == null)
                 return;
-            deletableEvent = @event;
-            events.Remove(@event);
+            
+            deletableEvent = eventDto;
+            events.Remove(eventDto);
         });
         if (!writeOperation.Success)
             return new OperationResult<EventDto>(writeOperation);

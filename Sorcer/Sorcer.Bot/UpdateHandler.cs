@@ -2,6 +2,7 @@ using ATI.Services.Common.Extensions;
 using Sorcer.Bot.CallbackHandler;
 using Sorcer.Bot.MessageHandler;
 using Sorcer.DataAccess.Helpers;
+using Sorcer.DataAccess.Managers;
 using Sorcer.Models.CallbackHandler;
 using Sorcer.Models.MessageHandler;
 using Telegram.Bot;
@@ -40,8 +41,7 @@ public class UpdateHandler : IUpdateHandler
                         return;
 
                     var authorizedUser =
-                        await _authorizationManager.GetAuthModelAsync(botClient, message.From, message.Chat.Id,
-                            message);
+                        await _authorizationManager.GetAuthModelAsync(botClient, message.From, message.Chat.Id, message);
                     if (!authorizedUser.Success)
                         return;
 
@@ -65,9 +65,11 @@ public class UpdateHandler : IUpdateHandler
                 }
             }
         }
-        catch
+        catch(Exception ex)
         {
-            // todo some logs
+            var chatId = update.CallbackQuery?.From.Id ?? update.Message?.Chat.Id;
+            if (chatId.HasValue)
+                botClient.LogErrorAsync(chatId.Value, ex).Forget();
         }
     }
 

@@ -22,7 +22,13 @@ public class EventsManager
     private readonly InlineSender _inlineSender;
     private readonly FileSystemHelper _fileSystemHelper;
     private readonly UserStateRepository _userStateRepository;
-    private readonly FileSystemOptions _options;    
+    private readonly FileSystemOptions _options;
+
+    private const string SendEventImageMessage = "<b>Пришлите изображение события:</b>";
+    private const string SucceedDeleteMessage = "<b>Успешно удалено</b>";
+    private const string SendDatetimeMessage = "<b>Пришлите дату события в формате дд.ММ.гггг чч:мм, например:\n12.08.2023 21:30</b>";
+    private const string SendDescriptionMessage = "<b>Пришлите описание события</b>";
+    private const string SucceedSaveMessage = "<b>Успешно сохранено</b>";
 
     public EventsManager(EventsRepository eventsRepository,
         IOptions<FileSystemOptions> options,
@@ -53,7 +59,7 @@ public class EventsManager
                 StringifyEventDateTime = e.StringifyEventDateTime
             }).ToList();
 
-        bool isFound = false;
+        var isFound = false;
         foreach (var publicEnvent in events)
         {
             if(publicEnvent.DateTimeOffset <= DateTimeOffset.Now)
@@ -75,7 +81,7 @@ public class EventsManager
         var chatId = context.Callback.From.Id;
         if (!eventsOperation.Success)
         {
-            context.BotClient.LogErrorAsync(chatId, eventsOperation);
+            context.BotClient.LogErrorAsync(chatId, eventsOperation).Forget();
             return;
         }
 
@@ -84,37 +90,26 @@ public class EventsManager
             var fileOperation = await _fileSystemHelper.GetEventFileAsync(eventDto.ImagePath);
             if (!fileOperation.Success)
             {
-                context.BotClient.LogErrorAsync(chatId, fileOperation);
+                context.BotClient.LogErrorAsync(chatId, fileOperation).Forget();
                 return;
             }
 
             var caption = $"{eventDto.StringifyEventDateTime}\n{eventDto.EventDescription}";
             var image = GetInputFile(fileOperation.Value);
-            await _inlineSender.SendEventImageWithInlineAsync(
+            await _inlineSender.SendEventImageWithDeleteInlineAsync(
                     context.BotClient, chatId, caption, image, eventDto.Id);
         }
         await context.BotClient.SendTextMessageAsync(chatId, $"Количество событий: {eventsOperation.Value.Count}");
-        await _inlineSender.SendMenuInlineKeyboard(context.BotClient, chatId);
+        _inlineSender.SendMenuInlineAsync(context.BotClient, chatId).Forget();
     }
     
-    public void AddEventAsync(CallbackContext context)
-    {
-        var chatId = context.Callback.From.Id;
-        _userStateRepository.SetTempUserData(context.UserDto.Id, (tempUserData)=>
-        {
-            tempUserData.State = UserState.GettingEventImage;
-        });
-        
-        _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-            "<b>Пришлите изображение события:</b>").Forget();
-    }
-    
-    public void CancelAddingEventAsync(CallbackContext context)
+    public void CancelAddingEvent(CallbackContext context)
     {
         var chatId = context.Callback.From.Id;
         _userStateRepository.ClearTempUserData(context.UserDto.Id);
-        _inlineSender.SendMenuInlineKeyboard(context.BotClient, chatId).Forget();
+        _inlineSender.SendMenuInlineAsync(context.BotClient, chatId).Forget();
     }
+    
     public async Task DeleteEventAsync(CallbackContext context, string rawGuid)
     {
         var chatId = context.Callback.From.Id;
@@ -127,9 +122,10 @@ public class EventsManager
         var eventsOperation = await _eventsRepository.RemoveEventAsync(eventId);
         if (!eventsOperation.Success)
         {
-            context.BotClient.LogErrorAsync(chatId, eventsOperation);
+            context.BotClient.LogErrorAsync(chatId, eventsOperation).Forget();
             return;
         }
+        
         if(eventsOperation.Value.Id == eventId)
         {
             var fileOperation = await _fileSystemHelper.DeleteEventFileAsync(eventsOperation.Value.ImagePath);
@@ -141,8 +137,19 @@ public class EventsManager
         }
 
         await context.BotClient.SendTextMessageAsync(chatId,
-            $"<b>Успешно удалено</b>", parseMode: ParseMode.Html);
-        await _inlineSender.SendMenuInlineKeyboard(context.BotClient, chatId);
+            SucceedDeleteMessage, parseMode: ParseMode.Html);
+        await _inlineSender.SendMenuInlineAsync(context.BotClient, chatId);
+    }
+    
+    public void AddEvent(CallbackContext context)
+    {
+        var chatId = context.Callback.From.Id;
+        _userStateRepository.SetTempUserData(context.UserDto.Id, (tempUserData)=>
+        {
+            tempUserData.State = UserState.GettingEventImage;
+        });
+        
+        _inlineSender.SendCancelInlineAsync(context.BotClient, chatId, SendEventImageMessage).Forget();
     }
     
     public async Task SaveImageAsync(MessageContext context)
@@ -150,8 +157,7 @@ public class EventsManager
         var chatId = context.Message.Chat.Id;
         if (context.Message.Type != MessageType.Photo)
         {
-            _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-                "<b>Пришлите изображение события</b>").Forget();
+            _inlineSender.SendCancelInlineAsync(context.BotClient, chatId, SendEventImageMessage).Forget();
             return;
         }
 
@@ -174,18 +180,16 @@ public class EventsManager
             tempUserData.EventDto.ImagePath = saveOperation.Value;
         } );
         
-        _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-            "<b>Пришлите дату события в формате дд.ММ.гггг чч:мм, например:\n12.08.2023 21:30</b>").Forget();
+        _inlineSender.SendCancelInlineAsync(context.BotClient, chatId, SendDatetimeMessage).Forget();
     }
     
-    public void SaveEventDateTimeAsync(MessageContext context)
+    public void SaveEventDateTime(MessageContext context)
     {
         var chatId = context.Message.Chat.Id;
         if (context.Message.Type != MessageType.Text 
             || !DateTime.TryParseExact(context.Message.Text, "g", CultureInfo.GetCultureInfo("de-DE"), DateTimeStyles.None, out var dateTimeOffset))
         {
-            _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-                "<b>Пришлите дату события в формате дд.ММ.гггг чч:мм, например:\n12.08.2023 21:30</b>").Forget();
+            _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,SendDatetimeMessage).Forget();
             return;
         }
         
@@ -196,8 +200,7 @@ public class EventsManager
             tempUserData.EventDto.StringifyEventDateTime = $"{dateTimeOffset.Day} {MonthDictionary.Months[dateTimeOffset.Month]} {dateTimeOffset.Year}";
         } );
         
-        _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-            "<b>Пришлите описание события</b>").Forget();
+        _inlineSender.SendCancelInlineAsync(context.BotClient, chatId, SendDescriptionMessage).Forget();
     }
     
     public async Task  SaveEventDescriptionAsync(MessageContext context)
@@ -206,8 +209,7 @@ public class EventsManager
         if (context.Message.Type != MessageType.Text 
             || string.IsNullOrEmpty(context.Message.Text))
         {
-            _inlineSender.SendCancelInlineAsync(context.BotClient, chatId,
-                "<b>Пришлите описание события</b>").Forget();
+            _inlineSender.SendCancelInlineAsync(context.BotClient, chatId, SendDescriptionMessage).Forget();
             return;
         }
         
@@ -221,7 +223,7 @@ public class EventsManager
         var fileOperation = await _fileSystemHelper.GetEventFileAsync(userData.EventDto.ImagePath);
         if (!fileOperation.Success)
         {
-            context.BotClient.LogErrorAsync(chatId, fileOperation);
+            context.BotClient.LogErrorAsync(chatId, fileOperation).Forget();
             return;
         }
         var image = GetInputFile(fileOperation.Value);
@@ -241,21 +243,21 @@ public class EventsManager
             || string.IsNullOrEmpty(userData.EventDto.StringifyEventDateTime)
             || string.IsNullOrEmpty(userData.EventDto.ImagePath))
         {
-            context.BotClient.LogErrorAsync(chatId, $"Что-то пошло не так:\n{JsonSerializer.Serialize(userData)}").Forget();
+            _userStateRepository.ClearTempUserData(context.UserDto.Id);
+            context.BotClient.LogErrorAsync(chatId, $"Ошибка! Что-то пошло не так:\n{JsonSerializer.Serialize(userData)}").Forget();
             return;
         }
 
         var eventsOperation = await _eventsRepository.AddEventAsync(userData.EventDto);
         if (!eventsOperation.Success)
         {
-            context.BotClient.LogErrorAsync(chatId, eventsOperation);
+            context.BotClient.LogErrorAsync(chatId, eventsOperation).Forget();
             return;
         }
         _userStateRepository.ClearTempUserData(context.UserDto.Id);
         
-        await context.BotClient.SendTextMessageAsync(chatId,
-            $"<b>Успешно сохранено</b>", parseMode: ParseMode.Html);
-        _inlineSender.SendMenuInlineKeyboard(context.BotClient, chatId).Forget();
+        await context.BotClient.SendTextMessageAsync(chatId, SucceedSaveMessage, parseMode: ParseMode.Html);
+        _inlineSender.SendMenuInlineAsync(context.BotClient, chatId).Forget();
     }
 
     private static InputFile GetInputFile(byte[] bytes)

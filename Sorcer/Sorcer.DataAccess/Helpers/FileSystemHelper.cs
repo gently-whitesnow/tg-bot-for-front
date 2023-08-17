@@ -35,7 +35,7 @@ public class FileSystemHelper
         {
             var fileInfo = new FileInfo(path);
             if (!fileInfo.Exists)
-                return new(ActionStatus.BadRequest, "file_not_found", "изображение не найдено");
+                return new(ActionStatus.BadRequest, "file_not_found", $"путь не найден: {path}");
             
             byte[] fileBytes;
             await using (var stream = new FileStream(fileInfo.FullName, FileMode.Open))
@@ -54,8 +54,7 @@ public class FileSystemHelper
             return new(ex);
         }
     }
-
-
+    
     private async Task<OperationResult> DeleteFileAsync(string path)
     {
         try
